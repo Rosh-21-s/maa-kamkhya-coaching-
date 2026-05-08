@@ -1,0 +1,9 @@
+runtime: nodejs18
+env: standard
+instance_class: F1
+
+env_variables:
+  MONGODB_URI: "your_mongodb_atlas_connection_string"
+  JWT_SECRET: "your_strong_secret_key"
+  NODE_ENV: "production"
+  PORT: "8080"

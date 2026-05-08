@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maa Kamkahakya Coaching Centre - Mock Tests</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- Navigation Bar -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🏫 Maa Kamkahakya Coaching Centre</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#tests">Mock Tests</a></li>
+                <li><a href="#about">About</a></li>
+                <li id="authLinks">
+                    <button onclick="toggleAuthModal('login')" class="btn btn-primary">Login</button>
+                    <button onclick="toggleAuthModal('register')" class="btn btn-secondary">Register</button>
+                </li>
+                <li id="userLinks" style="display:none;">
+                    <span id="userName"></span>
+                    <button onclick="logout()" class="btn btn-danger">Logout</button>
+                    <button onclick="goToDashboard()" class="btn btn-primary">Dashboard</button>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-content">
+            <h2>Excel in Your Exams</h2>
+            <p>Practice with our comprehensive mock tests for JEE, NEET, and Government Jobs</p>
+            <button onclick="scrollToTests()" class="btn btn-large">Get Started</button>
+        </div>
+    </section>
+
+    <!-- Tests Section -->
+    <section id="tests" class="tests-section">
+        <h2>Available Mock Tests</h2>
+        
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterTests('all')">All</button>
+            <button class="filter-btn" onclick="filterTests('JEE')">JEE</button>
+            <button class="filter-btn" onclick="filterTests('NEET')">NEET</button>
+            <button class="filter-btn" onclick="filterTests('Government Job')">Govt Jobs</button>
+        </div>
+
+        <div id="testsList" class="tests-grid">
+            <!-- Tests will be loaded here -->
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <h2>About Maa Kamkahakya Coaching Centre</h2>
+        <p>We provide premium quality mock tests and practice materials for competitive exams. Our platform helps students prepare effectively for:</p>
+        <ul>
+            <li>✓ JEE Main & Advanced</li>
+            <li>✓ NEET (Medical Entrance)</li>
+            <li>✓ Government Job Exams (SSC, Banking, Railways)</li>
+        </ul>
+    </section>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleAuthModal('login')">&times;</span>
+            <h2>Login</h2>
+            <form onsubmit="handleLogin(event)">
+                <input type="email" placeholder="Email" id="loginEmail" required>
+                <input type="password" placeholder="Password" id="loginPassword" required>
+                <select id="loginCategory">
+                    <option value="JEE">JEE</option>
+                    <option value="NEET">NEET</option>
+                    <option value="Government Job">Government Job</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="toggleAuthModal('register')">&times;</span>
+            <h2>Register</h2>
+            <form onsubmit="handleRegister(event)">
+                <input type="text" placeholder="Full Name" id="registerName" required>
+                <input type="email" placeholder="Email" id="registerEmail" required>
+                <input type="password" placeholder="Password" id="registerPassword" required>
+                <input type="tel" placeholder="Phone Number" id="registerPhone">
+                <select id="registerCategory">
+                    <option value="JEE">JEE</option>
+                    <option value="NEET">NEET</option>
+                    <option value="Government Job">Government Job</option>
+                </select>
+                <button type="submit" class="btn btn-primary">Register</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2026 Maa Kamkahakya Coaching Centre. All rights reserved.</p>
+        <p>Empowering Students for Competitive Exams</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>

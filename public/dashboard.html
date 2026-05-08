@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Maa Kamkahakya Coaching Centre</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        .results-table {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        tr:hover {
+            background: #f9f9f9;
+        }
+        .score-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        .score-good {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .score-average {
+            background: #fff3e0;
+            color: #e65100;
+        }
+        .score-poor {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-view {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-view:hover {
+            background: #1976D2;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🏫 Maa Kamkahakya Coaching Centre</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/#tests">Tests</a></li>
+                <li><button onclick="goToDoubts()" class="btn btn-primary">Ask Doubts</button></li>
+                <li><button onclick="logout()" class="btn btn-danger">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <div>
+                <h2>Welcome, <span id="studentName">Student</span>! 👋</h2>
+                <p id="userCategory" style="color: #666; margin-top: 5px;"></p>
+            </div>
+            <button onclick="location.href='/'" class="btn btn-primary">Take New Test</button>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Tests Taken</div>
+                <div class="stat-value" id="testsTaken">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Average Score</div>
+                <div class="stat-value" id="averageScore">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Best Score</div>
+                <div class="stat-value" id="bestScore">0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Marks</div>
+                <div class="stat-value" id="totalMarks">0</div>
+            </div>
+        </div>
+
+        <!-- Results History -->
+        <div>
+            <h3 class="section-title">📊 Test Results History</h3>
+            <div class="results-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Test Name</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Marks</th>
+                            <th>Percentage</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <tr>
+                            <td colspan="7" style="text-align: center; color: #999;">
+                                Loading results...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function loadDashboard() {
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+            const userCategory = localStorage.getItem('userCategory');
+
+            if (!userId) {
+                alert('Please login to view dashboard');
+                window.location.href = '/';
+                return;
+            }
+
+            document.getElementById('studentName').textContent = userName || 'Student';
+            document.getElementById('userCategory').textContent = `Category: ${userCategory || 'General'}`;
+
+            try {
+                const response = await fetch(`/api/results/user/${userId}`);
+                const results = await response.json();
+
+                if (Array.isArray(results)) {
+                    displayResults(results);
+                    calculateStats(results);
+                } else {
+                    document.getElementById('resultsBody').innerHTML = 
+                        '<tr><td colspan="7" style="text-align: center;">No results yet. Start taking tests!</td></tr>';
+                }
+            } catch (error) {
+                console.error('Error loading results:', error);
+                document.getElementById('resultsBody').innerHTML = 
+                    '<tr><td colspan="7" style="text-align: center; color: #f44336;">Error loading results</td></tr>';
+            }
+        }
+
+        function displayResults(results) {
+            const resultsBody = document.getElementById('resultsBody');
+            
+            if (results.length === 0) {
+                resultsBody.innerHTML = 
+                    '<tr><td colspan="7" style="text-align: center; padding: 40px;">No test results yet. <a href="/" style="color: #2196F3;">Take a test now!</a></td></tr>';
+                return;
+            }
+
+            resultsBody.innerHTML = results.map(result => {
+                const date = new Date(result.createdAt).toLocaleDateString();
+                const percentage = ((result.totalMarksObtained / result.testId.totalMarks) * 100).toFixed(1);
+                
+                let scoreClass = 'score-poor';
+                if (percentage >= 70) scoreClass = 'score-good';
+                else if (percentage >= 50) scoreClass = 'score-average';
+
+                return `
+                    <tr>
+                        <td>${result.testId.title}</td>
+                        <td>${result.testId.category}</td>
+                        <td>${date}</td>
+                        <td>${result.totalMarksObtained}/${result.testId.totalMarks}</td>
+                        <td><span class="score-badge ${scoreClass}">${percentage}%</span></td>
+                        <td>
+                            <span style="padding: 4px 10px; border-radius: 3px; background: #e0f2f1; color: #00695c; font-size: 12px;">
+                                ${result.status}
+                            </span>
+                        </td>
+                        <td>
+                            <button onclick="viewResult('${result._id}')" class="btn btn-view">View</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function calculateStats(results) {
+            if (results.length === 0) return;
+
+            const testsTaken = results.length;
+            const scores = results.map(r => (r.totalMarksObtained / r.testId.totalMarks) * 100);
+            const averageScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1);
+            const bestScore = Math.max(...scores).toFixed(1);
+            const totalMarks = results.reduce((sum, r) => sum + r.totalMarksObtained, 0);
+
+            document.getElementById('testsTaken').textContent = testsTaken;
+            document.getElementById('averageScore').textContent = averageScore + '%';
+            document.getElementById('bestScore').textContent = bestScore + '%';
+            document.getElementById('totalMarks').textContent = totalMarks;
+        }
+
+        function viewResult(resultId) {
+            window.location.href = `/scorecard?resultId=${resultId}`;
+        }
+
+        function goToDoubts() {
+            window.location.href = '/doubts';
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            localStorage.removeItem('userCategory');
+            window.location.href = '/';
+        }
+
+        window.onload = loadDashboard;
+    </script>
+</body>
+</html>

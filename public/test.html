@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take Test - Maa Kamkahakya Coaching Centre</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .test-container {
+            display: flex;
+            min-height: 100vh;
+            background: #f5f5f5;
+        }
+        .test-sidebar {
+            width: 250px;
+            background: #fff;
+            border-right: 2px solid #ddd;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .test-content {
+            flex: 1;
+            padding: 30px;
+        }
+        .question-nav {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        .question-btn {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            background: #fff;
+        }
+        .question-btn.attempted {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .question-btn.current {
+            background: #2196F3;
+            color: white;
+            border-color: #2196F3;
+            box-shadow: 0 0 10px rgba(33,150,243,0.5);
+        }
+        .timer {
+            font-size: 24px;
+            font-weight: bold;
+            color: #d32f2f;
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 8px;
+        }
+        .timer.warning {
+            background: #fff3cd;
+        }
+        .question-card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .question-text {
+            font-size: 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .option {
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .option:hover {
+            border-color: #2196F3;
+            background: #e3f2fd;
+        }
+        .option.selected {
+            background: #4CAF50;
+            color: white;
+            border-color: #4CAF50;
+        }
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 30px;
+        }
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+        .btn-submit {
+            background: #4CAF50;
+            color: white;
+            padding: 12px 40px;
+            margin-left: auto;
+        }
+        .btn-submit:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <!-- Sidebar with Question Navigator -->
+        <div class="test-sidebar">
+            <div class="timer" id="timer">00:00:00</div>
+            <h3>Questions</h3>
+            <div class="question-nav" id="questionNav"></div>
+            <div style="margin-top: 30px; padding: 15px; background: #f9f9f9; border-radius: 5px; font-size: 12px;">
+                <p><span style="display: inline-block; width: 10px; height: 10px; background: white; border: 2px solid #ddd; margin-right: 5px;"></span> Not Attempted</p>
+                <p><span style="display: inline-block; width: 10px; height: 10px; background: #4CAF50; border-color: #4CAF50; margin-right: 5px;"></span> Attempted</p>
+                <p><span style="display: inline-block; width: 10px; height: 10px; background: #2196F3; border-color: #2196F3; margin-right: 5px;"></span> Current</p>
+            </div>
+        </div>
+
+        <!-- Main Test Area -->
+        <div class="test-content">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                <h2 id="testTitle"></h2>
+                <button onclick="confirmSubmit()" class="btn btn-submit">Submit Test</button>
+            </div>
+
+            <div class="question-card">
+                <div class="question-text" id="questionText"></div>
+                <div class="options" id="options"></div>
+            </div>
+
+            <div class="navigation">
+                <button onclick="previousQuestion()" class="btn btn-primary">← Previous</button>
+                <button onclick="nextQuestion()" class="btn btn-primary">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let testData = null;
+        let currentQuestion = 0;
+        let userAnswers = {};
+        let timeLeft = 0;
+        let timerInterval = null;
+
+        async function loadTest() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const testId = urlParams.get('testId');
+
+            if (!testId) {
+                alert('Test ID not provided');
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tests/${testId}`);
+                testData = await response.json();
+
+                document.getElementById('testTitle').textContent = testData.title;
+                
+                // Initialize timer
+                timeLeft = testData.timeLimit * 60; // Convert to seconds
+                startTimer();
+
+                // Create question navigator
+                createQuestionNav();
+
+                // Load first question
+                loadQuestion(0);
+            } catch (error) {
+                console.error('Error loading test:', error);
+                alert('Error loading test. Please try again.');
+            }
+        }
+
+        function createQuestionNav() {
+            const nav = document.getElementById('questionNav');
+            nav.innerHTML = '';
+            
+            for (let i = 0; i < testData.questions.length; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'question-btn';
+                btn.textContent = i + 1;
+                btn.onclick = () => loadQuestion(i);
+                
+                if (i === 0) btn.classList.add('current');
+                if (userAnswers[i] !== undefined) btn.classList.add('attempted');
+                
+                nav.appendChild(btn);
+            }
+        }
+
+        function loadQuestion(index) {
+            currentQuestion = index;
+            const question = testData.questions[index];
+
+            document.getElementById('questionText').textContent = question.questionText;
+
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+
+            question.options.forEach((option, idx) => {
+                const optionEl = document.createElement('div');
+                optionEl.className = 'option';
+                optionEl.textContent = `${String.fromCharCode(65 + idx)}) ${option.text}`;
+                
+                if (userAnswers[index] === idx) {
+                    optionEl.classList.add('selected');
+                }
+
+                optionEl.onclick = () => selectAnswer(idx);
+                optionsDiv.appendChild(optionEl);
+            });
+
+            updateNav();
+        }
+
+        function selectAnswer(optionIndex) {
+            userAnswers[currentQuestion] = optionIndex;
+            loadQuestion(currentQuestion);
+            createQuestionNav();
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < testData.questions.length - 1) {
+                loadQuestion(currentQuestion + 1);
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                loadQuestion(currentQuestion - 1);
+            }
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeLeft--;
+
+                const hours = Math.floor(timeLeft / 3600);
+                const minutes = Math.floor((timeLeft % 3600) / 60);
+                const seconds = timeLeft % 60;
+
+                const timerEl = document.getElementById('timer');
+                timerEl.textContent = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (timeLeft < 300) { // 5 minutes warning
+                    timerEl.classList.add('warning');
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitTest();
+                }
+            }, 1000);
+        }
+
+        function confirmSubmit() {
+            if (confirm('Are you sure you want to submit the test? You cannot change answers after submission.')) {
+                submitTest();
+            }
+        }
+
+        async function submitTest() {
+            clearInterval(timerInterval);
+
+            const userId = localStorage.getItem('userId');
+            const answers = Object.keys(userAnswers).map(index => ({
+                questionId: testData.questions[index]._id,
+                selectedAnswer: userAnswers[index]
+            }));
+
+            const timeSpent = (testData.timeLimit * 60) - timeLeft;
+
+            try {
+                const response = await fetch('/api/results/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId,
+                        testId: testData._id,
+                        answers,
+                        timeSpent
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('lastResult', JSON.stringify(result.result));
+                    localStorage.setItem('lastScorecard', JSON.stringify(result.scorecard));
+                    window.location.href = `/scorecard?resultId=${result.result._id}`;
+                } else {
+                    alert('Error submitting test: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting test');
+            }
+        }
+
+        function updateNav() {
+            const buttons = document.querySelectorAll('.question-btn');
+            buttons.forEach((btn, idx) => {
+                btn.classList.remove('current');
+                if (idx === currentQuestion) {
+                    btn.classList.add('current');
+                }
+            });
+        }
+
+        // Load test when page loads
+        window.onload = loadTest;
+
+        // Warn before leaving
+        window.onbeforeunload = () => {
+            if (timeLeft > 0) {
+                return 'Are you sure you want to leave? Your test will be lost.';
+            }
+        };
+    </script>
+</body>
+</html>

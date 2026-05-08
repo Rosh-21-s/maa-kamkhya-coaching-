@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ask Doubts - Maa Kamkahakya Coaching Centre</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .doubts-container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px;
+        }
+        .doubt-form {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 150px;
+        }
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #2196F3;
+            box-shadow: 0 0 5px rgba(33,150,243,0.3);
+        }
+        .doubts-list {
+            display: grid;
+            gap: 20px;
+        }
+        .doubt-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            border-left: 4px solid #2196F3;
+        }
+        .doubt-card.answered {
+            border-left-color: #4CAF50;
+        }
+        .doubt-card.resolved {
+            border-left-color: #8BC34A;
+            opacity: 0.8;
+        }
+        .doubt-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 12px;
+        }
+        .doubt-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin: 0;
+        }
+        .doubt-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .doubt-status.open {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .doubt-status.answered {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .doubt-status.resolved {
+            background: #f1f8e9;
+            color: #558b2f;
+        }
+        .doubt-meta {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+        .doubt-text {
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .doubt-reply {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 12px;
+            border-left: 3px solid #4CAF50;
+        }
+        .reply-by {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+        .reply-text {
+            color: #333;
+            line-height: 1.6;
+        }
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+        .btn-submit {
+            background: #4CAF50;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+        }
+        .btn-submit:hover {
+            background: #45a049;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab {
+            padding: 12px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            color: #666;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+        }
+        .tab.active {
+            color: #2196F3;
+            border-bottom-color: #2196F3;
+        }
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <h1>🏫 Maa Kamkahakya Coaching Centre</h1>
+            </div>
+            <ul class="nav-links">
+                <li><a href="/">Home</a></li>
+                <li><button onclick="window.location.href='dashboard.html'" class="btn btn-primary">Dashboard</button></li>
+                <li><button onclick="logout()" class="btn btn-danger">Logout</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="doubts-container">
+        <h2>📚 Ask Your Doubts</h2>
+        
+        <!-- Ask New Doubt -->
+        <div class="doubt-form">
+            <h3>Post a New Doubt</h3>
+            <form onsubmit="postDoubt(event)">
+                <div class="form-group">
+                    <label for="doubtTitle">Doubt Title *</label>
+                    <input type="text" id="doubtTitle" placeholder="What is your doubt about?" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="doubtText">Description *</label>
+                    <textarea id="doubtText" placeholder="Describe your doubt in detail..." required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="doubtCategory">Category</label>
+                    <select id="doubtCategory">
+                        <option value="General">General Doubt</option>
+                        <option value="JEE">JEE Related</option>
+                        <option value="NEET">NEET Related</option>
+                        <option value="Government Job">Government Job Related</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-submit">Post Doubt</button>
+            </form>
+        </div>
+
+        <!-- View Doubts -->
+        <div>
+            <h3>Your Doubts</h3>
+            <div class="tabs">
+                <button class="tab active" onclick="filterDoubts('all')">All</button>
+                <button class="tab" onclick="filterDoubts('open')">Open</button>
+                <button class="tab" onclick="filterDoubts('answered')">Answered</button>
+                <button class="tab" onclick="filterDoubts('resolved')">Resolved</button>
+            </div>
+
+            <div class="filter-section">
+                <select onchange="filterByCategory(this.value)" style="padding: 8px; border-radius: 5px; border: 1px solid #ddd;">
+                    <option value="">All Categories</option>
+                    <option value="JEE">JEE</option>
+                    <option value="NEET">NEET</option>
+                    <option value="Government Job">Government Job</option>
+                    <option value="General">General</option>
+                </select>
+            </div>
+
+            <div class="doubts-list" id="doubtsList">
+                <!-- Doubts will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allDoubts = [];
+        let currentFilter = 'all';
+        let currentCategoryFilter = '';
+
+        async function loadDoubts() {
+            const userId = localStorage.getItem('userId');
+            if (!userId) {
+                alert('Please login to view your doubts');
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/doubts/student/${userId}`);
+                allDoubts = await response.json();
+                displayDoubts();
+            } catch (error) {
+                console.error('Error loading doubts:', error);
+                alert('Error loading doubts');
+            }
+        }
+
+        function displayDoubts() {
+            let filteredDoubts = allDoubts;
+
+            if (currentFilter !== 'all') {
+                filteredDoubts = filteredDoubts.filter(d => d.status === currentFilter);
+            }
+
+            if (currentCategoryFilter) {
+                filteredDoubts = filteredDoubts.filter(d => d.category === currentCategoryFilter);
+            }
+
+            const doubtsList = document.getElementById('doubtsList');
+            doubtsList.innerHTML = '';
+
+            if (filteredDoubts.length === 0) {
+                doubtsList.innerHTML = '<p style="text-align: center; color: #999;">No doubts found</p>';
+                return;
+            }
+
+            filteredDoubts.forEach(doubt => {
+                const doubtCard = document.createElement('div');
+                doubtCard.className = `doubt-card ${doubt.status}`;
+
+                let content = `
+                    <div class="doubt-header">
+                        <h4 class="doubt-title">${doubt.doubtTitle}</h4>
+                        <span class="doubt-status ${doubt.status}">${doubt.status}</span>
+                    </div>
+                    <div class="doubt-meta">
+                        Posted on ${new Date(doubt.createdAt).toLocaleDateString()} | ${doubt.category}
+                    </div>
+                    <div class="doubt-text">${doubt.doubtText}</div>
+                `;
+
+                if (doubt.reply) {
+                    content += `
+                        <div class="doubt-reply">
+                            <div class="reply-by">📌 Reply from ${doubt.repliedBy}</div>
+                            <div class="reply-text">${doubt.reply}</div>
+                            ${doubt.repliedAt ? `<div class="doubt-meta">Replied on ${new Date(doubt.repliedAt).toLocaleDateString()}</div>` : ''}
+                        </div>
+                    `;
+                }
+
+                doubtCard.innerHTML = content;
+                doubtsList.appendChild(doubtCard);
+            });
+        }
+
+        function filterDoubts(status) {
+            currentFilter = status;
+            
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            displayDoubts();
+        }
+
+        function filterByCategory(category) {
+            currentCategoryFilter = category;
+            displayDoubts();
+        }
+
+        async function postDoubt(event) {
+            event.preventDefault();
+
+            const userId = localStorage.getItem('userId');
+            const userName = localStorage.getItem('userName');
+
+            const doubt = {
+                studentId: userId,
+                studentName: userName || 'Student',
+                doubtTitle: document.getElementById('doubtTitle').value,
+                doubtText: document.getElementById('doubtText').value,
+                category: document.getElementById('doubtCategory').value
+            };
+
+            try {
+                const response = await fetch('/api/doubts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(doubt)
+                });
+
+                if (response.ok) {
+                    alert('Doubt posted successfully! Our instructors will reply soon.');
+                    document.querySelector('form').reset();
+                    loadDoubts();
+                } else {
+                    alert('Error posting doubt');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error posting doubt');
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('userId');
+            localStorage.removeItem('userName');
+            window.location.href = '/';
+        }
+
+        window.onload = loadDoubts;
+    </script>
+</body>
+</html>
