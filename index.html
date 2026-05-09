@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maa Kamakhya Academy Portal</title>
+    <style>
+        :root { --blue: #003366; --light-blue: #007bff; --green: #28a745; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f9; margin: 0; text-align: center; }
+        header { background: var(--blue); color: white; padding: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .container { background: white; width: 90%; max-width: 600px; margin: 30px auto; padding: 30px; border-radius: 15px; box-shadow: 0 5px 25px rgba(0,0,0,0.1); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        button { padding: 15px; cursor: pointer; border: none; border-radius: 8px; font-weight: bold; transition: 0.3s; }
+        .main-btn { background: var(--light-blue); color: white; width: 100%; font-size: 16px; margin-top: 15px; }
+        .section-btn { background: white; color: var(--blue); border: 2px solid var(--blue); padding: 25px; font-size: 18px; }
+        .section-btn:hover { background: var(--blue); color: white; }
+        .option-btn { display: block; width: 100%; margin: 10px 0; padding: 15px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 8px; text-align: left; }
+        #timer { color: #d9534f; font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+        #user-info { background: #002244; color: white; padding: 10px; display: none; justify-content: flex-end; align-items: center; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Maa Kamakhya JEE NEET Academy</h1>
+</header>
+
+<div id="home-page" class="container">
+    <h2>Mock Test Portal</h2>
+    <p>Apna section chuniye aur JSON set file upload karke abhi mock test shuru karein.</p>
+    <div class="grid">
+        <button class="section-btn" onclick="selectSection('11th')">11th</button>
+        <button class="section-btn" onclick="selectSection('12th')">12th</button>
+        <button class="section-btn" onclick="selectSection('JEE')">JEE</button>
+        <button class="section-btn" onclick="selectSection('NEET')">NEET</button>
+    </div>
+    <div id="upload-panel" style="display:none; margin-top:20px; text-align:left;">
+        <h3 id="upload-title">Section selected. Ab file upload karein.</h3>
+        <input type="file" id="file-selector" accept=".json">
+        <button class="main-btn" style="background:var(--green); width:auto;" onclick="loadUserFile()">UPLOAD SET</button>
+        <p style="font-size:14px; color:#555; margin-top:10px;">Agar aapke computer mein quiz file save hai (jaise test.json), toh yahan se choose karke upload kar sakte hain.</p>
+        <p style="font-size:13px; color:#333; background:#f1f5f9; padding:12px; border-radius:8px; margin-top:10px;">
+            Example JSON agar aap direct question list upload karenge:<br>
+            <code>[{ "q": "Question text?", "opt": ["A","B","C","D"], "a": "A" }, ...]</code>
+        </p>
+    </div>
+</div>
+
+<div id="set-page" class="container" style="display:none;">
+    <h2 id="current-title">Available Sets</h2>
+    <div id="set-buttons" class="grid"></div>
+</div>
+
+<div id="quiz-page" class="container" style="display:none;">
+    <div id="timer">⏳ <span id="time-display">00:00</span></div>
+    <h3 id="question-text"></h3>
+    <div id="options-container"></div>
+    <button class="main-btn" style="background:var(--green);" onclick="handleNext()">SUBMIT & NEXT ➔</button>
+</div>
+
+<div id="result-page" class="container" style="display:none;">
+    <h2 style="color: var(--blue);">Test Result</h2>
+    <p id="result-summary" style="font-size:18px; margin: 20px 0;"></p>
+    <p id="result-details" style="color:#555;"></p>
+    <button class="main-btn" style="background:var(--light-blue);" onclick="restartPortal()">Restart Test</button>
+</div>
+
+<script>
+let quizData, selectedCat, currentSet, currentIdx, timeLeft, timerInterval, score, selectedAnswer;
+
+// --- PORTAL LOGIC ---
+function selectSection(section) {
+    selectedCat = section;
+    document.getElementById('upload-panel').style.display = 'block';
+    document.getElementById('upload-title').innerText = `Selected section: ${section}. Ab JSON file upload karein.`;
+}
+
+function loadUserFile() {
+    const file = document.getElementById('file-selector').files[0];
+    if (!file) return alert("Pehle file select karein!");
+    if (!selectedCat) return alert("Pehle section select karein.");
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (Array.isArray(data)) {
+                quizData = {
+                    [selectedCat]: {
+                        "Uploaded Set": {
+                            questions: data,
+                            time: 600
+                        }
+                    }
+                };
+            } else if (data.questions && data.time) {
+                quizData = {
+                    [selectedCat]: {
+                        "Uploaded Set": data
+                    }
+                };
+            } else if (data[selectedCat]) {
+                quizData = {
+                    [selectedCat]: data[selectedCat]
+                };
+            } else {
+                quizData = {
+                    [selectedCat]: data
+                };
+            }
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('set-page').style.display = 'block';
+            showSets(selectedCat);
+        } catch (err) {
+            alert("JSON format error! Check commas/brackets.");
+        }
+    };
+    reader.readAsText(file);
+}
+
+function showSets(cat) {
+    selectedCat = cat;
+    if(!quizData[cat]) return alert("No sets in " + cat);
+    document.getElementById('current-title').innerText = cat + " Sets";
+    const container = document.getElementById('set-buttons');
+    container.innerHTML = "";
+    Object.keys(quizData[cat]).forEach(s => {
+        let btn = document.createElement('button');
+        btn.innerText = s; btn.className = "section-btn";
+        btn.onclick = () => startQuiz(cat, s);
+        container.appendChild(btn);
+    });
+    document.getElementById('set-page').style.display = 'block';
+}
+
+function startQuiz(cat, s) {
+    const data = quizData[cat][s];
+    currentSet = data.questions; timeLeft = data.time;
+    currentIdx = 0; score = 0;
+    document.getElementById('set-page').style.display = 'none';
+    document.getElementById('quiz-page').style.display = 'block';
+    startTimer(); loadQuestion();
+}
+
+function startTimer() {
+    timerInterval = setInterval(() => {
+        let min = Math.floor(timeLeft / 60); let sec = timeLeft % 60;
+        document.getElementById('time-display').innerText = `${min}:${sec < 10 ? '0'+sec : sec}`;
+        if (timeLeft-- <= 0) { clearInterval(timerInterval); alert("Time Up!"); finishTest(); }
+    }, 1000);
+}
+
+function loadQuestion() {
+    selectedAnswer = null;
+    const q = currentSet[currentIdx];
+    document.getElementById('question-text').innerText = `Q${currentIdx+1}: ${q.q}`;
+    const container = document.getElementById('options-container');
+    container.innerHTML = "";
+    q.opt.forEach(o => {
+        let btn = document.createElement('button');
+        btn.innerText = o; btn.className = "option-btn";
+        btn.onclick = () => selectOption(o, btn, container, q.a);
+        container.appendChild(btn);
+    });
+}
+
+function selectOption(optionText, btn, container, correctAnswer) {
+    if (selectedAnswer !== null) return;
+    selectedAnswer = optionText;
+    Array.from(container.children).forEach(b => b.disabled = true);
+    if (optionText === correctAnswer) {
+        btn.style.background = "#28a745";
+        btn.style.color = "white";
+        score++;
+    } else {
+        btn.style.background = "#dc3545";
+        btn.style.color = "white";
+    }
+}
+
+function handleNext() {
+    if (selectedAnswer === null) return alert("Koi option select kijiye!");
+    if (++currentIdx < currentSet.length) {
+        loadQuestion();
+    } else {
+        finishTest();
+    }
+}
+
+function finishTest() {
+    clearInterval(timerInterval);
+    const result = {
+        name: "Student",
+        score: score,
+        total: currentSet.length,
+        subject: selectedCat || "Practice Test",
+        time: new Date().toLocaleString()
+    };
+    saveLocalResult(result);
+    showResultPage(result);
+}
+
+function saveLocalResult(result) {
+    const history = JSON.parse(localStorage.getItem("mockTestResults") || "[]");
+    history.unshift(result);
+    localStorage.setItem("mockTestResults", JSON.stringify(history.slice(0, 10)));
+}
+
+function showResultPage(result) {
+    document.getElementById('quiz-page').style.display = 'none';
+    document.getElementById('result-page').style.display = 'block';
+    document.getElementById('result-summary').innerText = `${result.name}, aapka score ${result.score} / ${result.total} hai.`;
+    document.getElementById('result-details').innerText = `Subject: ${result.subject} | Date: ${result.time}`;
+}
+
+function restartPortal() {
+    document.getElementById('result-page').style.display = 'none';
+    document.getElementById('home-page').style.display = 'block';
+    document.getElementById('upload-panel').style.display = selectedCat ? 'block' : 'none';
+    document.getElementById('set-page').style.display = 'none';
+    document.getElementById('quiz-page').style.display = 'none';
+    document.getElementById('file-selector').value = '';
+}
+</script>
+</body>
+</html>
