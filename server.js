@@ -5,6 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 dotenv.config();
+console.log('Loaded MONGODB_URI from env:', process.env.MONGODB_URI); // Debug log
 
 const app = express();
 
@@ -16,6 +17,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // MongoDB Connection
 const mongoURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/maa_kamkahakya';
+console.log('MongoDB URI:', mongoURI); // Debug log
 if (!process.env.MONGODB_URI) {
   console.warn('Warning: MONGODB_URI is not set. Using local MongoDB fallback.');
 }
