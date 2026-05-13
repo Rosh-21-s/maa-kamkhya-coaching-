@@ -4,8 +4,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
 
-dotenv.config();
+// Load .env file
+dotenv.config({ path: '.env' });
+dotenv.config({ path: '.env.local' });
 console.log('Loaded MONGODB_URI from env:', process.env.MONGODB_URI); // Debug log
+console.log('NODE_ENV:', process.env.NODE_ENV);
 
 const app = express();
 
