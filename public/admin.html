@@ -365,6 +365,7 @@
     <script>
         let currentDoubtId = null;
         let allQuestions = [];
+        let editingTestId = null;
 
         // Tab Switching
         function switchTab(tabName) {
@@ -498,25 +499,32 @@
                 formData.append('pdf', document.getElementById('testPdf').files[0]);
             }
 
+            const method = editingTestId ? 'PUT' : 'POST';
+            const url = editingTestId ? `/api/tests/${editingTestId}` : '/api/tests';
+
             try {
-                const response = await fetch('/api/tests', {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method,
                     body: formData
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
-                    alert('Test created successfully!');
+                    const message = editingTestId ? 'Test updated successfully!' : 'Test created successfully!';
+                    alert(message);
                     event.target.reset();
                     document.getElementById('questionsList').innerHTML = '';
                     allQuestions = [];
+                    editingTestId = null;
+                    document.querySelector('button[type="submit"]').textContent = 'Create Test';
+                    loadTests();
                 } else {
-                    alert('Error creating test: ' + data.message);
+                    alert('Error saving test: ' + data.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('Error creating test');
+                alert('Error saving test');
             }
         }
 
@@ -560,6 +568,66 @@
                     })
                     .catch(error => console.error('Error:', error));
             }
+        }
+
+        function editTest(testId) {
+            editingTestId = testId;
+            fetch(`/api/tests/${testId}`)
+                .then(response => response.json())
+                .then(test => {
+                    document.getElementById('testTitle').value = test.title;
+                    document.getElementById('testDescription').value = test.description || '';
+                    document.getElementById('testCategory').value = test.category;
+                    document.getElementById('testTotalQuestions').value = test.totalQuestions;
+                    document.getElementById('testTimeLimit').value = test.timeLimit;
+                    document.getElementById('testTotalMarks').value = test.totalMarks;
+
+                    document.getElementById('questionsList').innerHTML = '';
+                    allQuestions = [];
+
+                    test.questions.forEach((question, index) => {
+                        addQuestionForm();
+                        const qEl = document.getElementById(`question-${index}`);
+                        qEl.querySelector('.question-text-input').value = question.questionText;
+                        qEl.querySelector('.question-marks').value = question.marks || 1;
+                        qEl.querySelector('.question-negative-marks').value = question.negativeMarks || 0.25;
+                        qEl.querySelector('.question-explanation').value = question.explanation || '';
+
+                        const optionContainer = qEl.querySelector('.question-options');
+                        optionContainer.innerHTML = '';
+                        question.options.forEach((option, optIndex) => {
+                            const optionHTML = `
+                                <div class="option-input-group">
+                                    <input type="text" placeholder="Option ${String.fromCharCode(65 + optIndex)}" class="option-text-input" value="${option.text}">
+                                    <label style="display: flex; align-items: center; gap: 5px; white-space: nowrap;">
+                                        <input type="checkbox" class="option-correct-checkbox" ${option.isCorrect ? 'checked' : ''}>
+                                        Correct
+                                    </label>
+                                    <button type="button" class="btn btn-danger" onclick="this.parentElement.remove()" style="padding: 5px 10px;">×</button>
+                                </div>
+                            `;
+                            optionContainer.insertAdjacentHTML('beforeend', optionHTML);
+                        });
+                    });
+
+                    document.querySelector('button[type="submit"]').textContent = 'Update Test';
+                })
+                .catch(error => console.error('Error fetching test:', error));
+        }
+
+        function resetTestForm() {
+            editingTestId = null;
+            document.getElementById('testTitle').value = '';
+            document.getElementById('testDescription').value = '';
+            document.getElementById('testCategory').value = '';
+            document.getElementById('testTotalQuestions').value = '';
+            document.getElementById('testTimeLimit').value = '';
+            document.getElementById('testTotalMarks').value = '';
+            document.getElementById('testPdf').value = '';
+            document.getElementById('questionsList').innerHTML = '';
+            allQuestions = [];
+            addQuestionForm();
+            document.querySelector('button[type="submit"]').textContent = 'Create Test';
         }
 
         // Doubt Management

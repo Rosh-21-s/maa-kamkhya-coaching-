@@ -383,20 +383,70 @@ body {
     .nav-container {
         flex-direction: column;
         gap: 10px;
+        align-items: stretch;
+    }
+
+    .logo h1 {
+        font-size: 20px;
+        text-align: center;
     }
 
     .nav-links {
         flex-direction: column;
         gap: 10px;
         width: 100%;
+        align-items: center;
+    }
+
+    .nav-links li {
+        width: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .navbar {
+        padding: 0.8rem 0;
+    }
+
+    .hero {
+        padding: 60px 15px;
     }
 
     .hero-content h2 {
         font-size: 32px;
     }
 
+    .hero-content p {
+        font-size: 18px;
+    }
+
+    .tests-section,
+    .about-section,
+    .footer {
+        padding: 0 15px;
+    }
+
+    .filter-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .filter-btn {
+        width: 100%;
+        max-width: 100%;
+        text-align: center;
+    }
+
     .tests-grid {
         grid-template-columns: 1fr;
+    }
+
+    .test-card {
+        padding: 20px;
+    }
+
+    .about-section {
+        padding: 30px 15px;
     }
 
     .modal-content {
@@ -405,6 +455,19 @@ body {
 
     .test-details {
         flex-wrap: wrap;
+    }
+
+    .about-section ul {
+        width: 100%;
+        padding-left: 20px;
+    }
+
+    .form-row {
+        display: block;
+    }
+
+    .form-group {
+        width: 100%;
     }
 }
 
