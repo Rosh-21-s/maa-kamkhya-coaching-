@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scorecard - Maa Kamkahakya Coaching Centre</title>
+    <title>Scorecard - Maa Kamkahakya Academy</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .scorecard-container {
@@ -132,13 +132,43 @@
             background: white;
             border-radius: 8px;
         }
+        @media (max-width: 768px) {
+            .scorecard-container {
+                margin: 20px auto;
+                padding: 20px;
+            }
+            .score-display {
+                grid-template-columns: 1fr;
+            }
+            .analysis-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .doubt-section {
+                padding: 20px;
+            }
+            .btn-group {
+                flex-direction: column;
+            }
+            .btn-group .btn {
+                width: 100%;
+                text-align: center;
+            }
+            .score-box {
+                padding: 20px;
+            }
+            .score-value {
+                font-size: 32px;
+            }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                <h1>🏫 Maa Kamkahakya Coaching Centre</h1>
+                <h1>🏫 Maa Kamkahakya Academy</h1>
             </div>
             <ul class="nav-links">
                 <li><a href="/">Home</a></li>

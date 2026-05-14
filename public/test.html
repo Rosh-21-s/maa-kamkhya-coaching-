@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Take Test - Maa Kamkahakya Coaching Centre</title>
+    <title>Take Test - Maa Kamkahakya Academy</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .test-container {
@@ -123,6 +123,62 @@
         }
         .btn-submit:hover {
             background: #45a049;
+        }
+        @media (max-width: 768px) {
+            .test-container {
+                display: block;
+                min-height: auto;
+            }
+            .test-sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 2px solid #ddd;
+                padding: 15px;
+            }
+            .test-content {
+                padding: 18px;
+            }
+            .question-nav {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                gap: 6px;
+            }
+            .question-btn {
+                width: 100%;
+                height: auto;
+                padding: 10px 0;
+                font-size: 13px;
+            }
+            .timer {
+                font-size: 20px;
+                padding: 12px;
+            }
+            .question-card {
+                padding: 18px;
+            }
+            .question-text {
+                font-size: 16px;
+                margin-bottom: 16px;
+            }
+            .option {
+                padding: 12px;
+                font-size: 14px;
+            }
+            .navigation {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .navigation .btn {
+                width: 100%;
+                margin-bottom: 10px;
+                font-size: 15px;
+                padding: 12px;
+            }
+            .btn-submit {
+                width: 100%;
+                margin: 20px 0 0 0;
+                font-size: 15px;
+                padding: 14px;
+            }
         }
     </style>
 </head>

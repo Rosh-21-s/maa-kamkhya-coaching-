@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - Maa Kamkahakya Coaching Centre</title>
+    <title>Admin Panel - Maa Kamkahakya Academy</title>
     <link rel="stylesheet" href="css/style.css">
     <style>
         .admin-container {
@@ -220,13 +220,51 @@
             color: #c62828;
             border-left: 4px solid #f44336;
         }
+        @media (max-width: 768px) {
+            .admin-container {
+                padding: 20px 10px;
+            }
+            .admin-tabs {
+                flex-direction: column;
+                gap: 8px;
+            }
+            .tab-content {
+                padding: 20px;
+            }
+            .form-row,
+            .option-input-group,
+            .question-header {
+                display: block;
+            }
+            .option-input-group {
+                gap: 8px;
+            }
+            .add-option-btn,
+            .btn,
+            .question-item,
+            .table-responsive {
+                width: 100%;
+            }
+            .question-header {
+                align-items: flex-start;
+            }
+            .question-header button {
+                width: 100%;
+                margin-top: 10px;
+            }
+            table,
+            th,
+            td {
+                font-size: 13px;
+            }
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-container">
             <div class="logo">
-                <h1>🏫 Admin Panel - Maa Kamkahakya Coaching Centre</h1>
+                <h1>🏫 Admin Panel - Maa Kamkahakya Academy</h1>
             </div>
             <ul class="nav-links">
                 <li><button onclick="logout()" class="btn btn-danger">Logout</button></li>
